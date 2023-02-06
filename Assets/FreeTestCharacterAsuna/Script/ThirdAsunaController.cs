@@ -28,8 +28,6 @@ public class ThirdAsunaController : MonoBehaviour
     private ThirdPersonController thirdPersonController;
     private GameObject crosshair;
     private Animator animator;
-    //김원진 - 인벤토리 GameObject 추가
-    public GameObject Inventory;
 
     Vector3 mouseWorldPosition = Vector3.zero;
     private void Awake()
@@ -41,67 +39,37 @@ public class ThirdAsunaController : MonoBehaviour
     }
     private void Update()
     {
-        
-            //화면 중앙 2차원 벡터값
-            Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
+        //화면 중앙 2차원 벡터값
+        Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
 
-            //ray오브젝트 카메라에서 마우스가 가르키는 화면포인트를 ray객체에 할당
-            Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
-            //raycast ??
-            if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
-            {
-                debugTransform.position = raycastHit.point;
-                mouseWorldPosition = raycastHit.point;
-            }
-
-            Aim();
-
-        //김원진 - 인벤토리 상태시 인벤토리 UI 활성화
-        if (asunaInputs.inventory)
+        //ray오브젝트 카메라에서 마우스가 가르키는 화면포인트를 ray객체에 할당
+        Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
+        //raycast ??
+        if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
         {
-            Inventory.SetActive(true);
+            debugTransform.position = raycastHit.point;
+            mouseWorldPosition = raycastHit.point;
         }
-        else
-        {
-            Inventory.SetActive(false);
-        }
-        
+
+        Aim();
 
     }
 
-    //김원진 - EventUI 지속성을 위해 OnTriggerEnter -> OnTriggerStay로 변경
-    //       - 조사(investigate)이후 탈출시 조사상태(investigate state 변경)
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if( other.tag == "EventObj")
         {
-            Debug.Log(other.tag);
             if (asunaInputs.investigate)
             {
-                Debug.Log("investigating");
                 other.GetComponent<EventObject>().getEventUI().SetActive(true);
-                asunaInputs.investigate = false;
-            }
-            
-            //김원진 - 아이템 상호작용시 습득
-            if (asunaInputs.interaction)
-            {
-                //김원진 - 상호작용시 떠있는 EventUI 문구 제거.
-                other.GetComponent<EventObject>().getText().SetActive(false);
-                other.GetComponent<EventObject>().getEventUI().SetActive(false);
-                other.GetComponent<GetItem>().Get();
-                asunaInputs.interaction = false;
             }
         }
-
-        
     }
     private void OnTriggerExit(Collider other)
     {
         if (other.tag == "EventObj")
         {
             other.GetComponent<EventObject>().getEventUI().SetActive(false);
-            
         }
     }
     private void Shoot()
